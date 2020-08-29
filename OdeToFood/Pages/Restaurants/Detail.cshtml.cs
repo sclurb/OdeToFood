@@ -12,6 +12,8 @@ namespace OdeToFood.Pages
     public class DetailModel : PageModel
     {
         public Restaurant Restaurant { get; set; }
+        [TempData]
+        public string Message { get; set; }
         public IRestaurantData RestaurantData { get; }
 
         public DetailModel(IRestaurantData restaurantData)
