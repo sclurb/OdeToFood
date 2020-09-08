@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using OdeToFood.Data;
+using System;
+using System.IO;
 
 namespace OdeToFood
 {
@@ -26,7 +29,8 @@ namespace OdeToFood
                 option.UseSqlServer(Configuration.GetConnectionString("OdeToFoodDb"));
             });
 
-            services.AddScoped<IRestaurantData, SqlRestaurantData>();
+             services.AddScoped<IRestaurantData, SqlRestaurantData>();
+            //services.AddScoped<IRestaurantData, InMemoryRestaurantData>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -51,15 +55,17 @@ namespace OdeToFood
             else
             {
                 app.UseExceptionHandler("/Error");
-                app.UseHsts();
+                app.UseHsts();  //HSTS instructs the browser to only access information across a secure connection
             }
+
+            //app.Use(SayHelloMiddleware);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseNodeModules();
             app.UseCookiePolicy();
 
-            //app.UseMvc();
+           // app.UseMvc();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
@@ -67,6 +73,22 @@ namespace OdeToFood
                 endpoints.MapControllers();
             });
 
+        }
+
+        private RequestDelegate SayHelloMiddleware(RequestDelegate arg)
+        {
+            return async ctx =>
+            {
+                if (ctx.Request.Path.StartsWithSegments("/hello"))
+                {
+                    await ctx.Response.WriteAsync("Hello World");
+                }
+                else
+                {
+                    //await next(ctx);
+                }
+                
+            };
         }
     }
 }
